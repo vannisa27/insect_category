@@ -155,7 +155,7 @@ function GoogleSheetData() {
           ) : isSignedIn ? (
             <div>
               <div className="form-group d-flex">
-                <p className="mt-auto mb-0 me-3">You are signed in!</p>{" "}
+                <p className="mt-auto mb-0 me-3">You are signed in!</p>
                 <button
                   className="btn btn-danger btn-sm d-inline-block"
                   onClick={handleSignOut}

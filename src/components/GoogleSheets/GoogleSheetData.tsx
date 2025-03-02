@@ -239,7 +239,7 @@ function GoogleSheetData() {
                   <th style={{ whiteSpace: "nowrap" }}>{sheetData[0][0]}</th>
                   {sheetData[0].length > 0 &&
                     sheetData[0]?.slice(1)?.map((col, index) => {
-                      if (!col) return;
+                      if (!col) return null;
 
                       return (
                         <th key={index} colSpan={3}>

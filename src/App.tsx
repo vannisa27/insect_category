@@ -4,7 +4,7 @@ import "./App.css";
 
 function App() {
   return (
-    <BrowserRouter basename="/my-app">
+    <BrowserRouter basename="/">
       <GoogleSheetData />;
     </BrowserRouter>
   );

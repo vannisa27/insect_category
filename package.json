@@ -2,6 +2,7 @@
   "name": "check_in_sheets",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://khawkriab.github.io/projectsoft_checkin",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

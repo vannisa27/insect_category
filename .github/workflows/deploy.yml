@@ -1,9 +1,16 @@
-name: Deploy React app to GitHub Pages
-
+name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # Trigger deployment when pushing to the main branch
+      - master
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:

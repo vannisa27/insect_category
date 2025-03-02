@@ -147,7 +147,7 @@ function GoogleSheetData() {
 
   return (
     <div>
-      <h1>Projectsoft Check-In</h1>
+      <h1>Projectsoft Check-In :)</h1>
       <div className="form-update">
         <div className="form-group">
           {!authLoaded ? (

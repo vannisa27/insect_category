@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { gapi } from "gapi-script";
+import dayjs from "dayjs";
 
 interface SheetData {
   range: string;
@@ -19,7 +20,8 @@ function GoogleSheetData() {
     row: string;
     column: string;
     time?: string;
-  }>({ row: "3", column: "B" });
+    mark?: string;
+  }>({ row: "3", column: "1", mark: "" });
 
   // Function to get the cell range in format like A1, B1, ..., Z1, AA1, AB1, etc.
   const getCellRange = (rowIndex: number, colIndex: number): string => {
@@ -69,14 +71,29 @@ function GoogleSheetData() {
 
   const updateSheet = () => {
     if (isSignedIn) {
+      const columnDate = getColumnLetter(Number(updateSheetsData.column));
+      const columnMark = getColumnLetter(Number(updateSheetsData.column) + 2);
       const params = {
         spreadsheetId: process.env.REACT_APP_SHEETS_ID,
-        range: `Mar!${updateSheetsData.column}${updateSheetsData.row}`, // Define the range you want to update
-        valueInputOption: "USER_ENTERED",
-        values: [[updateSheetsData.time]],
+        // range: `Mar!${updateSheetsData.column}${updateSheetsData.row}`, // Define the range you want to update
+        // values: [[updateSheetsData.time]],
+        resource: {
+          data: [
+            {
+              range: `Mar!${columnDate}${updateSheetsData.row}`,
+              values: [[updateSheetsData.time]],
+            },
+            {
+              range: `Mar!${columnMark}${updateSheetsData.row}`,
+              values: [[updateSheetsData.mark]],
+            },
+          ],
+          valueInputOption: "USER_ENTERED",
+        },
       };
 
-      const request = gapi.client.sheets.spreadsheets.values.update(params);
+      const request =
+        gapi.client.sheets.spreadsheets.values.batchUpdate(params);
       request.then(
         (response: any) => {
           getSheets();
@@ -119,13 +136,22 @@ function GoogleSheetData() {
           return rowCopy;
         });
         setSheetData(normalizedData); // Set the sheet data
-        setDateList([...normalizedData.slice(2).map((row) => row[0])]);
+        const dateListSheets = normalizedData.slice(2).map((row) => row[0]);
+        const currentDate = dayjs().format("DD/MM/YYYY");
+        const indexOfList = dateListSheets.findIndex((f) => f === currentDate);
+        const rowSelect = String(indexOfList + 3);
+        console.log("selectDate:", rowSelect);
+        setDateList([...dateListSheets]);
+        setUpdateSheetsData((prev) => ({ ...prev, row: rowSelect }));
+
+        // set employee
         let arr: string[] = [];
         normalizedData[0].slice(1).forEach((col) => {
           if (!col) return;
 
           arr.push(col);
         });
+
         setEmployeeList([...arr]);
         setLoading(false); // Set loading to false
       })
@@ -168,6 +194,7 @@ function GoogleSheetData() {
                 <div className="form-group">
                   <label className="form-label">วันที่</label>
                   <select
+                    disabled
                     className="form-select"
                     name="row"
                     value={updateSheetsData.row}
@@ -190,12 +217,9 @@ function GoogleSheetData() {
                     onChange={onChangeData}
                   >
                     <option>select</option>
-                    {employeeList.map((date, index) => (
-                      <option
-                        key={index}
-                        value={getColumnLetter(index * 3 + 1)}
-                      >
-                        {date} ({getCellRange(0, index * 3 + 1)})
+                    {employeeList.map((employee, index) => (
+                      <option key={index} value={String(index * 3 + 1)}>
+                        {employee} ({getCellRange(0, index * 3 + 1)})
                       </option>
                     ))}
                   </select>
@@ -207,6 +231,15 @@ function GoogleSheetData() {
                     type="time"
                     name="time"
                     value={updateSheetsData.time}
+                    onChange={onChangeData}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">หมายเหตุ</label>
+                  <input
+                    className="form-control"
+                    name="mark"
+                    value={updateSheetsData.mark}
                     onChange={onChangeData}
                   />
                 </div>

@@ -137,7 +137,8 @@ function GoogleSheetData() {
         });
         setSheetData(normalizedData); // Set the sheet data
         const dateListSheets = normalizedData.slice(2).map((row) => row[0]);
-        const currentDate = dayjs().format("DD/MM/YYYY");
+        const currentDate = dayjs().format("DD-MM-YYYY");
+        console.log("currentDate:", currentDate);
         const indexOfList = dateListSheets.findIndex((f) => f === currentDate);
         const rowSelect = String(indexOfList + 3);
         console.log("selectDate:", rowSelect);

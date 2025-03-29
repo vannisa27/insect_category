@@ -203,7 +203,7 @@ function GoogleSheetData() {
 
               <div style={{ display: "flex" }}>
                 <div className="form-group">
-                  <label className="form-label">วันที่</label>
+                  <label className="form-label">xxx</label>
                   <select
                     disabled
                     className="form-select"

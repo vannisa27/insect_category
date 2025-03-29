@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { gapi } from "gapi-script";
 import dayjs from "dayjs";
 
@@ -16,12 +16,18 @@ function GoogleSheetData() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [dateList, setDateList] = useState<string[]>([]);
   const [employeeList, setEmployeeList] = useState<string[]>([]);
+  const [searchData, setSearchData] = useState<{ name: string }>({ name: '' });
   const [updateSheetsData, setUpdateSheetsData] = useState<{
     row: string;
     column: string;
     time?: string;
     mark?: string;
   }>({ row: "3", column: "1", mark: "" });
+  // 
+  const dataList = useMemo(() => {
+    const arr = [...sheetData.slice(1)];
+    return arr.filter((row) => row[1].includes(searchData.name)); // Filter rows based on searchData.name
+  }, [JSON.stringify(searchData), sheetData.length])
 
   // Function to get the cell range in format like A1, B1, ..., Z1, AA1, AB1, etc.
   const getCellRange = (rowIndex: number, colIndex: number): string => {
@@ -75,16 +81,16 @@ function GoogleSheetData() {
       const columnMark = getColumnLetter(Number(updateSheetsData.column) + 2);
       const params = {
         spreadsheetId: process.env.REACT_APP_SHEETS_ID,
-        // range: `Mar!${updateSheetsData.column}${updateSheetsData.row}`, // Define the range you want to update
+        // range: `Sheets1!${updateSheetsData.column}${updateSheetsData.row}`, // Define the range you want to update
         // values: [[updateSheetsData.time]],
         resource: {
           data: [
             {
-              range: `Mar!${columnDate}${updateSheetsData.row}`,
+              range: `Sheets1!${columnDate}${updateSheetsData.row}`,
               values: [[updateSheetsData.time]],
             },
             {
-              range: `Mar!${columnMark}${updateSheetsData.row}`,
+              range: `Sheets1!${columnMark}${updateSheetsData.row}`,
               values: [[updateSheetsData.mark]],
             },
           ],
@@ -119,14 +125,15 @@ function GoogleSheetData() {
 
   const getSheets = async () => {
     // API URL and your API key
-    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.REACT_APP_SHEETS_ID}/values/Mar?key=${process.env.REACT_APP_API_KEY}`;
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.REACT_APP_SHEETS_ID}/values/Sheets1?key=${process.env.REACT_APP_API_KEY}`;
 
     // Fetch data from Google Sheets
     axios
       .get<SheetData>(apiUrl)
       .then((response) => {
         const data = response.data.values;
-        const maxLength = data[1].length;
+        console.log("data:", data);
+        const maxLength = data[0].length; // header length = column length
         const normalizedData = data.map((row) => {
           const rowCopy = [...row];
           // Add empty strings for missing columns to match the first row length
@@ -136,24 +143,26 @@ function GoogleSheetData() {
           return rowCopy;
         });
         setSheetData(normalizedData); // Set the sheet data
-        const dateListSheets = normalizedData.slice(2).map((row) => row[0]);
-        const currentDate = dayjs().format("DD-MM-YYYY");
-        console.log("currentDate:", currentDate);
-        const indexOfList = dateListSheets.findIndex((f) => f === currentDate);
-        const rowSelect = String(indexOfList + 3);
-        console.log("selectDate:", rowSelect);
-        setDateList([...dateListSheets]);
-        setUpdateSheetsData((prev) => ({ ...prev, row: rowSelect }));
+        console.log("normalizedData:", normalizedData);
+        // const dateListSheets = normalizedData.slice(2).map((row) => row[0]);
+        // console.log("dateListSheets:", dateListSheets);
+        // const currentDate = dayjs().format("DD-MM-YYYY");
+        // console.log("currentDate:", currentDate);
+        // const indexOfList = dateListSheets.findIndex((f) => f === currentDate);
+        // const rowSelect = String(indexOfList + 3);
+        // console.log("selectDate:", rowSelect);
+        // setDateList([...dateListSheets]);
+        // setUpdateSheetsData((prev) => ({ ...prev, row: rowSelect }));
 
         // set employee
-        let arr: string[] = [];
-        normalizedData[0].slice(1).forEach((col) => {
-          if (!col) return;
+        // let arr: string[] = [];
+        // normalizedData[0].slice(1).forEach((col) => {
+        //   if (!col) return;
 
-          arr.push(col);
-        });
+        //   arr.push(col);
+        // });
 
-        setEmployeeList([...arr]);
+        // setEmployeeList([...arr]);
         setLoading(false); // Set loading to false
       })
       .catch((err) => {
@@ -163,6 +172,7 @@ function GoogleSheetData() {
       });
   };
 
+  // start function
   useEffect(() => {
     gapi.load("client:auth2", initClient);
     getSheets();
@@ -264,42 +274,52 @@ function GoogleSheetData() {
           )}
         </div>
       </div>
+      <div style={{ display: "flex" }}>
+        <div className="form-group">
+          <label className="form-label">insect name</label>
+          <input
+            className="form-control"
+            name="name"
+            value={searchData.name}
+            onChange={(e) => setSearchData(prev => ({ ...prev, name: e.target.value }))}
+          />
+        </div>
+
+      </div>
       <div className="table-listing-container">
         <div className="table-listing-content">
           {!loading && (
             <table className="table table-hover">
               <thead>
                 <tr>
-                  <th style={{ whiteSpace: "nowrap" }}>{sheetData[0][0]}</th>
                   {sheetData[0].length > 0 &&
-                    sheetData[0]?.slice(1)?.map((col, index) => {
+                    sheetData[0]?.map((col, index) => {
                       if (!col) return null;
-
                       return (
-                        <th key={index} colSpan={3}>
+                        <th style={{ whiteSpace: "nowrap" }} key={index}>
                           {col}
                         </th>
-                      );
+                      )
                     })}
-                </tr>
-                <tr>
-                  {sheetData[1].length > 0 &&
-                    sheetData[1]?.map((col, index) => (
-                      <th key={index} style={{ whiteSpace: "nowrap" }}>
-                        {col}
-                      </th>
-                    ))}
                 </tr>
               </thead>
               <tbody>
-                {sheetData.slice(2).map((row, rowIdx) => (
+                {dataList.map((row, rowIdx) => (
                   <tr key={rowIdx}>
-                    {row.map((cell, cellIdx) => (
-                      <td key={cellIdx}>
-                        {cell}
-                        {/* ({getCellRange(rowIdx + 2, cellIdx)}) */}
-                      </td>
-                    ))}
+                    {row.map((cell, cellIdx) => {
+                      if (cellIdx === 12 && cell) {
+                        const imageUrl = `https://drive.google.com/uc?export=view&id=${cell}`;
+                        return <td key={cellIdx}>xxxxx
+                          <img style={{width:'100px', height:'50px'}} src={cell} alt="" />
+                          {/* <img style={{width:'100px', height:'50px'}} src={`${imageUrl}`} alt="Google Drive Image"></img> */}
+                        </td>
+                      }
+                      return (
+                        <td key={cellIdx}>
+                          {cell}
+                        </td>
+                      )
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -308,7 +328,7 @@ function GoogleSheetData() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default GoogleSheetData;
+export default GoogleSheetData

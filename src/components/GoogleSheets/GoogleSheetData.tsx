@@ -1,12 +1,31 @@
 import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
 import { gapi } from "gapi-script";
+import FormUpdateSheet from "./FormUpdateSheet";
 
 interface SheetData {
   range: string;
   majorDimension: string;
   values: string[][];
 }
+
+type UpdateSheetsData = {
+  row?: string,
+  B: string,
+  C: string,
+  D: string,
+  E: string,
+  F: string,
+  G: string,
+  H: string,
+  I: string,
+  J: string,
+  K: string,
+  L: string,
+  M: string,
+  N: string,
+}
+
 
 function GoogleSheetData() {
   const [sheetData, setSheetData] = useState<string[][]>([]);
@@ -16,17 +35,27 @@ function GoogleSheetData() {
   // const [dateList, setDateList] = useState<string[]>([]);
   const [employeeList, setEmployeeList] = useState<string[]>([]);
   const [searchData, setSearchData] = useState<{ name: string }>({ name: '' });
-  const [updateSheetsData, setUpdateSheetsData] = useState<{
-    row: string;
-    column: string;
-    time?: string;
-    mark?: string;
-  }>({ row: "3", column: "1", mark: "" });
+  const [updateSheetsData, setUpdateSheetsData] = useState<UpdateSheetsData>({
+    row: undefined,
+    B: '',
+    C: '',
+    D: '',
+    E: '',
+    F: '',
+    G: '',
+    H: '',
+    I: '',
+    J: '',
+    K: '',
+    L: '',
+    M: '',
+    N: '',
+  });
   // 
   const dataList = useMemo(() => {
     const arr = [...sheetData.slice(1)];
     return arr.filter((row) => row[1].includes(searchData.name)); // Filter rows based on searchData.name
-  }, [JSON.stringify(searchData), sheetData.length])
+  }, [JSON.stringify(searchData), sheetData.toString()])
 
   // Function to get the cell range in format like A1, B1, ..., Z1, AA1, AB1, etc.
   const getCellRange = (rowIndex: number, colIndex: number): string => {
@@ -74,25 +103,24 @@ function GoogleSheetData() {
     gapi.auth2.getAuthInstance().signOut();
   };
 
-  const updateSheet = () => {
+  const onUpdateSheet = () => {
+    const no = updateSheetsData.row // แถวที่ต้องการอัพเดท
+    const allData = { A: Number(no || '1') - 1, ...updateSheetsData };
+    delete allData.row; // remove row key
+
+    const n = Object.keys(allData).map((key) => ({
+      range: `Sheets1!${key}${no}`,
+      values: [[allData[key as keyof UpdateSheetsData]]],
+    }))
+
+    console.log("allData:", n);
     if (isSignedIn) {
-      const columnDate = getColumnLetter(Number(updateSheetsData.column));
-      const columnMark = getColumnLetter(Number(updateSheetsData.column) + 2);
+
+
       const params = {
         spreadsheetId: process.env.REACT_APP_SHEETS_ID,
-        // range: `Sheets1!${updateSheetsData.column}${updateSheetsData.row}`, // Define the range you want to update
-        // values: [[updateSheetsData.time]],
         resource: {
-          data: [
-            {
-              range: `Sheets1!${columnDate}${updateSheetsData.row}`,
-              values: [[updateSheetsData.time]],
-            },
-            {
-              range: `Sheets1!${columnMark}${updateSheetsData.row}`,
-              values: [[updateSheetsData.mark]],
-            },
-          ],
+          data: n,
           valueInputOption: "USER_ENTERED",
         },
       };
@@ -142,26 +170,6 @@ function GoogleSheetData() {
           return rowCopy;
         });
         setSheetData(normalizedData); // Set the sheet data
-        console.log("normalizedData:", normalizedData);
-        // const dateListSheets = normalizedData.slice(2).map((row) => row[0]);
-        // console.log("dateListSheets:", dateListSheets);
-        // const currentDate = dayjs().format("DD-MM-YYYY");
-        // console.log("currentDate:", currentDate);
-        // const indexOfList = dateListSheets.findIndex((f) => f === currentDate);
-        // const rowSelect = String(indexOfList + 3);
-        // console.log("selectDate:", rowSelect);
-        // setDateList([...dateListSheets]);
-        // setUpdateSheetsData((prev) => ({ ...prev, row: rowSelect }));
-
-        // set employee
-        // let arr: string[] = [];
-        // normalizedData[0].slice(1).forEach((col) => {
-        //   if (!col) return;
-
-        //   arr.push(col);
-        // });
-
-        // setEmployeeList([...arr]);
         setLoading(false); // Set loading to false
       })
       .catch((err) => {
@@ -183,7 +191,7 @@ function GoogleSheetData() {
 
   return (
     <div>
-      <h1>Projectsoft Check-In :)</h1>
+      <h1>Zoo Insect Hub</h1>
       <div className="form-update">
         <div className="form-group">
           {!authLoaded ? (
@@ -200,69 +208,12 @@ function GoogleSheetData() {
                 </button>
               </div>
 
-              <div style={{ display: "flex" }}>
-                <div className="form-group">
-                  <label className="form-label">xxx</label>
-                  {/* <select
-                    disabled
-                    className="form-select"
-                    name="row"
-                    value={updateSheetsData.row}
-                    onChange={onChangeData}
-                  >
-                    <option>select</option>
-                    {dateList.map((date, index) => (
-                      <option key={index} value={String(index + 3)}>
-                        {date} ({getCellRange(index + 2, 0)})
-                      </option>
-                    ))}
-                  </select> */}
-                </div>
-                <div className="form-group">
-                  <label className="form-label">พนักงาน</label>
-                  <select
-                    className="form-select"
-                    name="column"
-                    value={updateSheetsData.column}
-                    onChange={onChangeData}
-                  >
-                    <option>select</option>
-                    {employeeList.map((employee, index) => (
-                      <option key={index} value={String(index * 3 + 1)}>
-                        {employee} ({getCellRange(0, index * 3 + 1)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">เวลา</label>
-                  <input
-                    className="form-control"
-                    type="time"
-                    name="time"
-                    value={updateSheetsData.time}
-                    onChange={onChangeData}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">หมายเหตุ</label>
-                  <input
-                    className="form-control"
-                    name="mark"
-                    value={updateSheetsData.mark}
-                    onChange={onChangeData}
-                  />
-                </div>
-                <div className="form-group" style={{ display: "flex" }}>
-                  <button
-                    className="btn btn-primary"
-                    style={{ marginTop: "auto" }}
-                    onClick={updateSheet}
-                  >
-                    update
-                  </button>
-                </div>
-              </div>
+              <FormUpdateSheet
+                count={dataList.length}
+                data={updateSheetsData}
+                setData={(e) => setUpdateSheetsData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
+                onUpdate={onUpdateSheet}
+              />
             </div>
           ) : (
             <div>
@@ -273,6 +224,15 @@ function GoogleSheetData() {
           )}
         </div>
       </div>
+      {/* <FormUpdateSheet
+        count={dataList.length}
+        data={updateSheetsData}
+        setData={(e) => setUpdateSheetsData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
+        onUpdate={onUpdateSheet}
+      /> */}
+
+      <hr />
+      <h2>Search</h2>
       <div style={{ display: "flex" }}>
         <div className="form-group">
           <label className="form-label">insect name</label>
@@ -296,7 +256,7 @@ function GoogleSheetData() {
                       if (!col) return null;
                       return (
                         <th style={{ whiteSpace: "nowrap" }} key={index}>
-                          {col}
+                          {col} {getColumnLetter(index)}
                         </th>
                       )
                     })}
@@ -306,11 +266,14 @@ function GoogleSheetData() {
                 {dataList.map((row, rowIdx) => (
                   <tr key={rowIdx}>
                     {row.map((cell, cellIdx) => {
+                      if (cellIdx === 3 && cell) {
+                        return <td key={cellIdx}>
+                          <div dangerouslySetInnerHTML={{ __html: cell as string }} />
+                        </td>
+                      }
                       if (cellIdx === 12 && cell) {
-                        // const imageUrl = `https://drive.google.com/uc?export=view&id=${cell}`;
                         return <td key={cellIdx}>xxxxx
-                          <img style={{width:'100px', height:'50px'}} src={cell} alt="" />
-                          {/* <img style={{width:'100px', height:'50px'}} src={`${imageUrl}`} alt="Google Drive Image"></img> */}
+                          <img style={{ width: '100px', height: '50px' }} src={cell} alt="" />
                         </td>
                       }
                       return (

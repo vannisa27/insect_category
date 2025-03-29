@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
 import { gapi } from "gapi-script";
-import dayjs from "dayjs";
 
 interface SheetData {
   range: string;
@@ -14,7 +13,7 @@ function GoogleSheetData() {
   const [loading, setLoading] = useState<boolean>(true);
   const [authLoaded, setAuthLoaded] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [dateList, setDateList] = useState<string[]>([]);
+  // const [dateList, setDateList] = useState<string[]>([]);
   const [employeeList, setEmployeeList] = useState<string[]>([]);
   const [searchData, setSearchData] = useState<{ name: string }>({ name: '' });
   const [updateSheetsData, setUpdateSheetsData] = useState<{
@@ -204,7 +203,7 @@ function GoogleSheetData() {
               <div style={{ display: "flex" }}>
                 <div className="form-group">
                   <label className="form-label">xxx</label>
-                  <select
+                  {/* <select
                     disabled
                     className="form-select"
                     name="row"
@@ -217,7 +216,7 @@ function GoogleSheetData() {
                         {date} ({getCellRange(index + 2, 0)})
                       </option>
                     ))}
-                  </select>
+                  </select> */}
                 </div>
                 <div className="form-group">
                   <label className="form-label">พนักงาน</label>
@@ -308,7 +307,7 @@ function GoogleSheetData() {
                   <tr key={rowIdx}>
                     {row.map((cell, cellIdx) => {
                       if (cellIdx === 12 && cell) {
-                        const imageUrl = `https://drive.google.com/uc?export=view&id=${cell}`;
+                        // const imageUrl = `https://drive.google.com/uc?export=view&id=${cell}`;
                         return <td key={cellIdx}>xxxxx
                           <img style={{width:'100px', height:'50px'}} src={cell} alt="" />
                           {/* <img style={{width:'100px', height:'50px'}} src={`${imageUrl}`} alt="Google Drive Image"></img> */}

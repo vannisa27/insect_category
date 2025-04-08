@@ -44,7 +44,8 @@
      white-space: nowrap;
    }
    &:nth-of-type(10),
-   &:nth-of-type(13){
+   &:nth-of-type(13),
+   &:nth-of-type(15){
      min-width: 400px;
    }
  }

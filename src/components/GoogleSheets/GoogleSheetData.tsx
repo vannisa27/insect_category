@@ -271,7 +271,7 @@ function GoogleSheetData() {
                           <div dangerouslySetInnerHTML={{ __html: cell as string }} />
                         </td>
                       }
-                      if (cellIdx === 12 && cell) {
+                      if (cellIdx === 15 && cell) {
                         return <td key={cellIdx}>
                           <embed style={{ width: '100px', height: '50px' }} src={cell} />
                         </td>

@@ -273,7 +273,7 @@ function GoogleSheetData() {
                       }
                       if (cellIdx === 12 && cell) {
                         return <td key={cellIdx}>
-                          <embed style={{ width: '100px', height: '50px' }} src={cell} alt="" />
+                          <embed style={{ width: '100px', height: '50px' }} src={cell} />
                         </td>
                       }
                       return (

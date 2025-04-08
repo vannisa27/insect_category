@@ -272,8 +272,8 @@ function GoogleSheetData() {
                         </td>
                       }
                       if (cellIdx === 12 && cell) {
-                        return <td key={cellIdx}>xxxxx
-                          <img style={{ width: '100px', height: '50px' }} src={cell} alt="" />
+                        return <td key={cellIdx}>
+                          <embed style={{ width: '100px', height: '50px' }} src={cell} alt="" />
                         </td>
                       }
                       return (

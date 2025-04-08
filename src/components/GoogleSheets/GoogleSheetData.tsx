@@ -273,7 +273,7 @@ function GoogleSheetData() {
                       }
                       if (cellIdx === 15 && cell) {
                         return <td key={cellIdx}>
-                          <embed style={{ width: '100px', height: '50px' }} src={cell} />
+                          <embed style={{ width: '100px', height: '50px' }} src={`https://drive.google.com/file/d/${cell}/preview`} />
                         </td>
                       }
                       return (

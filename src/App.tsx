@@ -1,12 +1,12 @@
-import { GoogleSheetData } from "./components/GoogleSheets";
-import { BrowserRouter } from "react-router-dom";
-import "./App.css";
+// import "./App.css";
+import { GoogleLoginApiProvider } from "./components/GoogleLoginApiProvider";
+import RouteManagement from "./RouteManagement";
 
 function App() {
   return (
-    <BrowserRouter basename="/">
-      <GoogleSheetData />
-    </BrowserRouter>
+    <GoogleLoginApiProvider>
+      <RouteManagement />
+    </GoogleLoginApiProvider>
   );
 }
 

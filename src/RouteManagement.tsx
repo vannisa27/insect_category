@@ -4,7 +4,7 @@ import { Home } from "./pages/Home";
 
 function RouteManagement() {
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/insect_category">
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
 import FormUpdateSheet from './FormUpdateSheet';
-import { Button, Col, Drawer, Flex, Form, Input, Pagination, PaginationProps, Row, Table, TableColumnsType, Typography } from 'antd';
+import { Button, Col, Drawer, Empty, Flex, Form, Input, Pagination, PaginationProps, Row, Table, TableColumnsType, Typography } from 'antd';
 import { useGoogleApi } from '../GoogleLoginApiProvider';
 import { CardAnimal } from '../CardAnimal';
 import styled from 'styled-components';
@@ -14,29 +14,29 @@ interface SheetData {
 
 export type DataObject = {
     key?: React.Key;
-    orderNumber: string; // index:0
-    code: string; // index:1
-    insectName: string; // index:2
-    commonName: string; // index:3
-    scientificName: string; // index:4
-    family: string; // index:5
-    genus: string; // index:6
-    type: string; // index:7
-    order: string; // index:8
-    status: string; // index:9
-    dateFound: string; // index:10
-    locationFound: string; // index:11
-    behavior: string; // index:12
-    foundBy: string; // index:13
-    additionalNotes: string; // index:14
-    imageUrl: string; // index:15
-    dateStuffed: string; // index:16
-    dateDisplayed: string; // index:17
-    dateUndisplayed: string; // index:18
-    displayLocation: string; // index:19
-    stuffedBy: string; // index:20
-    technique: string; // index:21
-    quantity: string; // index:22
+    orderNumber: string; // index:0 ลำดับที่
+    code: string; // index:1 รหัส
+    insectName: string; // index:2 ชื่อแมลง
+    commonName: string; // index:3 ชื่อสามัญ
+    scientificName: string; // index:4 ชื่อวิทยาศาสตร์
+    family: string; // index:5 วงศ์
+    genus: string; // index:6 สกุล
+    type: string; // index:7 ประเภท
+    order: string; // index:8 อันดับ
+    status: string; // index:9 สถานภาพ
+    dateFound: string; // index:10 วันที่พบ
+    locationFound: string; // index:11 สถานที่พบ
+    behavior: string; // index:12 พฤติกรรม
+    foundBy: string; // index:13 ผู้พบ
+    additionalNotes: string; // index:14 บันทึกเพิ่มเติม
+    imageUrl: string; // index:15 รูปภาพ
+    dateStuffed: string; // index:16 วันที่สตัฟฟ์
+    dateDisplayed: string; // index:17 วันที่จัดแสดง
+    dateUndisplayed: string; // index:18 วันที่เลิกจัดแสดง
+    displayLocation: string; // index:19 ตำแหน่งจัดแสดง
+    stuffedBy: string; // index:20 ผู้สตัฟฟ์
+    technique: string; // index:21 เทคนิค
+    quantity: string; // index:22 จำนวน(ตัว)
 };
 
 const PAGE_SIZE = 10; // Default items per page
@@ -336,31 +336,37 @@ function GoogleSheetData() {
             </Row>
             <hr />
 
-            <div className='table-listing-container'>
-                <div className='table-listing'>
-                    {!loading && <Table columns={columns} dataSource={dataList} scroll={{ x: 'max-content', y: '66vh' }} bordered />}
-                </div>
-                <div className='table-listing-card'>
-                    {!loading && (
-                        <div>
-                            <Flex wrap gap={24} justify='space-around'>
-                                {dataList.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((item, index) => (
-                                    <CardAnimal key={index} data={item} />
-                                ))}
-                            </Flex>
-                            <Flex style={{ marginTop: '24px' }} justify='center'>
-                                <Pagination
-                                    showSizeChanger
-                                    defaultCurrent={1}
-                                    total={dataList.length}
-                                    onShowSizeChange={onChangePage}
-                                    onChange={onChangePage}
-                                />
-                            </Flex>
+            {!loading && (
+                <>
+                    {dataList.length > 0 ? (
+                        <div className='table-listing-container'>
+                            <div className='table-listing'>
+                                <Table columns={columns} dataSource={dataList} scroll={{ x: 'max-content', y: '66vh' }} bordered />
+                            </div>
+                            <div className='table-listing-card'>
+                                <div>
+                                    <Flex wrap gap={24} justify='space-around'>
+                                        {dataList.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((item, index) => (
+                                            <CardAnimal key={index} data={item} />
+                                        ))}
+                                    </Flex>
+                                    <Flex style={{ marginTop: '24px' }} justify='center'>
+                                        <Pagination
+                                            showSizeChanger
+                                            defaultCurrent={1}
+                                            total={dataList.length}
+                                            onShowSizeChange={onChangePage}
+                                            onChange={onChangePage}
+                                        />
+                                    </Flex>
+                                </div>
+                            </div>
                         </div>
+                    ) : (
+                        <Empty />
                     )}
-                </div>
-            </div>
+                </>
+            )}
         </GoogleSheetDataWrapper>
     );
 }
